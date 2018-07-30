@@ -35,7 +35,8 @@ tmpl
     │   └── index.tmpl
     ├── err.tmpl
     ├── index.tmpl
-    └── page.tmpl
+    ├── page.tmpl
+    └── redir.tmpl
 
 ```
 
@@ -64,6 +65,10 @@ See also: [sample](sample/)
 
 ```
 {{ .SetError 403 "Test error" "Error description" true }}
+```
+
+```
+{{ .RedirectFound "/page" }}
 ```
 
 ## TODO
