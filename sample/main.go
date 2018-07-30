@@ -17,7 +17,6 @@ import (
 	mapper "github.com/birkirb/loggers-mapper-logrus"
 
 	"github.com/apisite/mulate"
-
 )
 
 type Todo struct {
@@ -95,7 +94,7 @@ func main() {
 			p, err := mlt.RenderPage(u, allFuncs)
 			if err != nil {
 				if p.Status == http.StatusMovedPermanently || p.Status == http.StatusFound {
-					http.Redirect(w, r, err.Error(), p.Status)
+					http.Redirect(w, r, p.Title, p.Status)
 					return
 				}
 				log.Debugf("page error: (%+v)", err)
@@ -104,9 +103,9 @@ func main() {
 					p.SetError(p.Status, "Internal", err.Error(), false)
 				}
 			}
-			header := w.Header()
-			header["Content-Type"] = p.ContentType
-			err = mlt.RenderLayout(w, p)
+			renderer := mulate.NewRenderer(mlt, p)
+			renderer.WriteContentType(w)
+			err = renderer.Render(w)
 			if err != nil {
 				log.Errorf("Error while handling uri (%s): %s", u, err)
 			}

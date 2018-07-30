@@ -149,55 +149,6 @@ func (t *Template) LoadTemplates(funcs template.FuncMap) error {
 	return nil
 }
 
-type Page struct {
-	Title       string
-	Status      int
-	ContentType []string
-	layout      string
-	content     template.HTML
-	JS          []string
-	CSS         []string
-	API         template.FuncMap
-}
-
-func (p *Page) SetLayout(name string) (string, error) {
-	p.layout = name
-	return "", nil
-}
-
-func (p *Page) SetTitle(name string) (string, error) {
-	p.Title = name
-	return "", nil
-}
-
-func (p *Page) SetError(status int, title, message string, abort bool) (string, error) {
-	p.Status = status
-	p.Title = title
-	p.content = template.HTML(message)
-	p.layout = "error"
-	if abort {
-		return "", errors.New(message)
-	}
-	return "", nil
-}
-
-type Renderer struct {
-	Page *Page
-	//	Ctx    *gin.Context
-	Engine *Template
-}
-
-func (r Renderer) Render(w http.ResponseWriter) error {
-	return r.Engine.RenderLayout(w, r.Page)
-}
-
-func (r Renderer) WriteContentType(w http.ResponseWriter) {
-	header := w.Header()
-	if val := header["Content-Type"]; len(val) == 0 {
-		header["Content-Type"] = r.Engine.config.ContentType
-	}
-}
-
 func (t *Template) RenderPage(uri string, funcs template.FuncMap) (*Page, error) {
 	p := &Page{
 		Status:      http.StatusOK,

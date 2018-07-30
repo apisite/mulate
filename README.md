@@ -68,8 +68,8 @@ See also: [sample](sample/)
 
 ## TODO
 
-* [ ] .Redirect
-* [ ] gin-mulate
+* [x] .Redirect
+* [x] [gin-mulate](https://github.com/apisite/gin-mulate)
 * [ ] pack renderering funcs
 * [ ] move html/template to interface
 * [ ] check another template engine
