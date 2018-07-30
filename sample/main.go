@@ -7,8 +7,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/pgrpc/mulate"
-
 	"github.com/sirupsen/logrus"
 
 	"github.com/onrik/logrus/filename"
@@ -17,6 +15,9 @@ import (
 	"github.com/jessevdk/go-flags"
 
 	mapper "github.com/birkirb/loggers-mapper-logrus"
+
+	"github.com/apisite/mulate"
+
 )
 
 type Todo struct {
