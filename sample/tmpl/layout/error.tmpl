@@ -1,0 +1,10 @@
+<html>
+<head>
+    {{ template "head.tmpl" . -}}
+</head>
+<body>
+    {{ template "menu.tmpl" . -}}
+    {{ .Content }}
+    {{ template "footer.tmpl" . -}}
+</body>
+</html>
