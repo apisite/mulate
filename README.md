@@ -14,7 +14,7 @@
 [gl1]: https://img.shields.io/github/license/apisite/mulate.svg
 [gl2]: LICENSE
 
-![Data flow](doc/flow.png)
+![Request processing flow](flow.png)
 
 ## Template structure
 
