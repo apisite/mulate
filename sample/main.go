@@ -100,7 +100,7 @@ func main() {
 				log.Debugf("page error: (%+v)", err)
 				if p.Status == http.StatusOK {
 					p.Status = http.StatusInternalServerError
-					p.SetError(p.Status, "Internal", err.Error(), false)
+					p.Raise(p.Status, "Internal", err.Error(), false)
 				}
 			}
 			renderer := mulate.NewRenderer(mlt, p)

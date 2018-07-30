@@ -162,7 +162,7 @@ func (t *Template) RenderPage(uri string, funcs template.FuncMap) (*Page, error)
 	tmplDef, ok := t.pages[uri]
 	if !ok {
 		e := fmt.Errorf("The page %s does not exist.", uri)
-		p.SetError(http.StatusInternalServerError, "NOT FOUND", e.Error(), false)
+		p.Raise(http.StatusInternalServerError, "NOT FOUND", e.Error(), false)
 		return p, e
 	}
 

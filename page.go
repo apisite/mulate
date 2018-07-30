@@ -29,7 +29,7 @@ func (p *Page) SetTitle(name string) (string, error) {
 	return "", nil
 }
 
-func (p *Page) SetError(status int, title, message string, abort bool) (string, error) {
+func (p *Page) Raise(status int, title, message string, abort bool) (string, error) {
 	p.Status = status
 	p.Title = title
 	p.content = template.HTML(message)

@@ -64,7 +64,7 @@ See also: [sample](sample/)
 ```
 
 ```
-{{ .SetError 403 "Test error" "Error description" true }}
+{{ .Raise 403 "Test error" "Error description" true }}
 ```
 
 ```
