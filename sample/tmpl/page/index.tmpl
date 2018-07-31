@@ -1,1 +1,14 @@
-index page
+<h2>Demo pages</h2>
+<ul>
+<li><a href="/admin/">admin</a>
+<li><a href="/page">page</a>
+<li><a href="/redir">redirect</a>
+<li><a href="/page?err=on">error</a>
+</ul>
+<h2>Test data</h2>
+<h3>{{ data.PageTitle }}</h3>
+<ul>
+{{range data.Todos -}}
+    <li>{{- .Title }}
+{{end -}}
+</ul>

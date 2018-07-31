@@ -1,4 +1,9 @@
+{{/*
+    Page footer block
+
+*/ -}}
 <footer>
 <hr>
-footer
+Host: {{ .Request.Host }}<br />
+URL: {{ .Request.URL.String | HTML }}<br />
 </footer>

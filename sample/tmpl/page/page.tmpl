@@ -1,4 +1,8 @@
 {{ .SetTitle "Test page" -}}
+{{ $err := .Request.URL.Query.Get "err" -}}
+{{ if $err }}
+{{   .Raise 500 "Test error" "<b>Error</b> description" true }}
+{{ end -}}
 {{ .SetLayout "wide" -}}
 <h2>{{.Title}}</h2>
-<h3>Page 1</h3>
+<h3>Page content</h3>

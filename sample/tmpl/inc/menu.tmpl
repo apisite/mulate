@@ -1,1 +1,7 @@
-menu
+{{/*
+    Non-root page menu
+
+*/ -}}
+{{ if ne .Request.URL.String "/" }}
+<a href="/">Home</a><br />
+{{ end }}
