@@ -1,10 +1,12 @@
 package main
 
+// Todo holds single todo item attrs
 type Todo struct {
 	Title string
 	Done  bool
 }
 
+// TodoPageData holds todo page attrs
 type TodoPageData struct {
 	PageTitle string
 	Todos     []Todo
