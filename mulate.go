@@ -12,8 +12,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-
-	"gopkg.in/birkirb/loggers.v1"
 )
 
 // config holds config variables and its defaults
@@ -44,8 +42,8 @@ type layoutDef struct {
 
 // Template holds all internally used template attributes
 type Template struct {
+	Funcs        template.FuncMap
 	config       Config
-	log          loggers.Contextual
 	includes     []string
 	pages        map[string]pageDef   // pages[uri]
 	layouts      map[string]layoutDef // layouts[name]
@@ -54,9 +52,8 @@ type Template struct {
 }
 
 // New creates mulate object
-func New(cfg Config, log loggers.Contextual) (*Template, error) {
-	mlt := Template{config: cfg, log: log}
-	return &mlt, nil
+func New(cfg Config) *Template {
+	return &Template{config: cfg}
 }
 
 // DisableCache disables template caching
@@ -70,6 +67,16 @@ func (t *Template) Pages() []string {
 
 	i := 0
 	for k := range t.pages {
+		keys[i] = k
+		i++
+	}
+	return keys
+}
+
+func (t *Template) Layouts() []string {
+	keys := make([]string, len(t.layouts))
+	i := 0
+	for k := range t.layouts {
 		keys[i] = k
 		i++
 	}
@@ -110,12 +117,13 @@ func (t *Template) LoadTemplates(funcs template.FuncMap) error {
 
 	for _, file := range layoutFiles {
 		name := strings.TrimSuffix(filepath.Base(file), t.config.Ext)
-		t.log.Debugf("Registering layout: %s", name)
-
 		td := layoutDef{file: file}
 		if !t.disableCache {
 			files := append([]string{file}, t.includes...)
-			td.tmpl = template.Must(template.New(name).Funcs(funcs).ParseFiles(files...))
+			td.tmpl, err = template.New(name).Funcs(funcs).ParseFiles(files...)
+			if err != nil {
+				return errors.Wrap(err, "process layout")
+			}
 		}
 		layouts[name] = td
 	}
@@ -131,7 +139,10 @@ func (t *Template) LoadTemplates(funcs template.FuncMap) error {
 		td := pageDef{file: file, name: name}
 		if !t.disableCache {
 			files := append([]string{file}, t.includes...)
-			td.tmpl = template.Must(template.New(name).Funcs(funcs).ParseFiles(files...))
+			td.tmpl, err = template.New(name).Funcs(funcs).ParseFiles(files...)
+			if err != nil {
+				return errors.Wrap(err, "process page")
+			}
 		}
 		uri := strings.TrimPrefix(file, (t.config.Root + t.config.Pages))
 		uri = strings.TrimSuffix(uri, t.config.Ext)
@@ -145,67 +156,73 @@ func (t *Template) LoadTemplates(funcs template.FuncMap) error {
 	t.bufpool = bpool.NewBufferPool(t.config.BufferSize)
 	t.pages = pages
 	t.layouts = layouts
+	t.Funcs = funcs
 	//e.tplMutex.Unlock()
 	return nil
 }
 
-func (t *Template) RenderPage(uri string, funcs template.FuncMap) (*Page, error) {
-	p := &Page{
+func (t *Template) RenderPage(uri string, funcs template.FuncMap, r *http.Request) (p *Page, err error) {
+	p = &Page{
 		Status:      http.StatusOK,
 		ContentType: t.config.ContentType,
-		layout:      t.config.DefLayout,
-		API:         funcs,
-		//	GET: ctx.Request.URL.Query(),
+		Layout:      t.config.DefLayout,
+		funcs:       funcs,
+		Request:     r,
+		errLayout:   t.config.ErrLayout,
 	}
 
-	t.log.Debugf("render page %s", uri)
 	tmplDef, ok := t.pages[uri]
 	if !ok {
-		e := fmt.Errorf("The page %s does not exist.", uri)
-		p.Raise(http.StatusInternalServerError, "NOT FOUND", e.Error(), false)
-		return p, e
+		err = fmt.Errorf("The page %s does not exist.", uri)
+		p.Raise(http.StatusInternalServerError, "NOT FOUND", err.Error(), false)
+		return
 	}
 
 	buf := t.bufpool.Get()
 	var tmpl *template.Template
 	if t.disableCache {
 		files := append([]string{tmplDef.file}, t.includes...)
-		tmpl = template.Must(template.New(tmplDef.name).Funcs(p.API).ParseFiles(files...))
+		tmpl, err = template.New(tmplDef.name).Funcs(p.funcs).ParseFiles(files...)
+		if err != nil {
+			return
+		}
 	} else {
 		tmpl = tmplDef.tmpl
-		tmpl.Funcs(p.API)
+		tmpl.Funcs(p.funcs)
 	}
-	err := tmpl.ExecuteTemplate(buf, tmplDef.name, p)
+	err = tmpl.ExecuteTemplate(buf, tmplDef.name, p)
 	if err != nil {
-		return p, err
+		return
 	}
 	p.content = template.HTML(buf.Bytes())
 	t.bufpool.Put(buf)
-	return p, nil
+	return
 }
 
 func (t *Template) RenderLayout(w http.ResponseWriter, p *Page) (err error) {
-	tmplDef, ok := t.layouts[p.layout]
-	t.log.Debugf("render layout (%s)", p.layout)
+	tmplDef, ok := t.layouts[p.Layout]
 	if !ok {
-		return fmt.Errorf("The layout %s does not exist.", p.layout)
+		return fmt.Errorf("The layout %s does not exist.", p.Layout)
 	}
 
 	buf := t.bufpool.Get()
 	var tmpl *template.Template
 	if t.disableCache {
 		files := append([]string{tmplDef.file}, t.includes...)
-		tmpl = template.Must(template.New(p.layout).Funcs(p.API).ParseFiles(files...))
+		tmpl, err = template.New(p.Layout).Funcs(p.funcs).ParseFiles(files...)
+		if err != nil {
+			return errors.Wrap(err, "parse layout")
+		}
 	} else {
 		tmpl = tmplDef.tmpl
-		tmpl.Funcs(p.API)
+		tmpl.Funcs(p.funcs)
 	}
-	err = tmpl.ExecuteTemplate(buf, p.layout+t.config.Ext, struct {
+	err = tmpl.ExecuteTemplate(buf, p.Layout+t.config.Ext, struct {
 		Content template.HTML
 		*Page
 	}{p.content, p})
 	if err != nil {
-		return err
+		return errors.Wrap(err, "exec layout")
 	}
 
 	w.WriteHeader(p.Status)

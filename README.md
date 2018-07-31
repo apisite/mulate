@@ -76,7 +76,6 @@ See also: [sample](sample/)
 * [x] .Redirect
 * [x] [gin-mulate](https://github.com/apisite/gin-mulate)
 * [ ] pack renderering funcs
-* [ ] move html/template to interface
 * [ ] check another template engine
 * [ ] test coverage
 * [ ] docs

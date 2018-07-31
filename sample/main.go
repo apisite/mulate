@@ -15,28 +15,12 @@ import (
 	"github.com/jessevdk/go-flags"
 
 	mapper "github.com/birkirb/loggers-mapper-logrus"
+	"gopkg.in/birkirb/loggers.v1"
+
+	//	"github.com/Masterminds/sprig"
 
 	"github.com/apisite/mulate"
 )
-
-type Todo struct {
-	Title string
-	Done  bool
-}
-
-type TodoPageData struct {
-	PageTitle string
-	Todos     []Todo
-}
-
-var data = TodoPageData{
-	PageTitle: "My TODO list",
-	Todos: []Todo{
-		{Title: "Task 1", Done: false},
-		{Title: "Task 2", Done: true},
-		{Title: "Task 3", Done: true},
-	},
-}
 
 // Config holds all config vars
 type Config struct {
@@ -66,16 +50,22 @@ func main() {
 	}
 	log := mapper.NewLogger(l)
 
-	mlt, _ := mulate.New(cfg.Template, log)
+	mlt := mulate.New(cfg.Template)
 	mlt.DisableCache(true)
+
+	// extra template functions
+	// allFuncs := sprig.FuncMap()
 
 	// See also; github.com/htfy96/reformism
 	allFuncs := make(template.FuncMap, 0)
+	allFuncs["HTML"] = func(s string) template.HTML {
+		return template.HTML(s)
+	}
 	// Set blank at parse time
 	// See https://stackoverflow.com/a/18302879
-	// TODO: use ginapi func types
-	allFuncs["api"] = func(nsp string, method string, v ...interface{}) (interface{}, error) { return nil, nil }
-	allFuncs["get"] = func(name string) (*string, error) { return nil, nil }
+	allFuncs["data"] = func() interface{} {
+		return nil
+	}
 
 	err = mlt.LoadTemplates(allFuncs)
 	if err != nil {
@@ -83,37 +73,41 @@ func main() {
 	}
 	for _, uri := range mlt.Pages() {
 		log.Debugf("Registering uri: %s", uri)
-		u := uri
-		http.HandleFunc("/"+uri, func(w http.ResponseWriter, r *http.Request) {
-			log.Debugf("Handling uri: %s", u)
-
-			//			tmpl.Execute(w, data)
-			allFuncs := make(template.FuncMap, 0)
-			//allFuncs["api"] = API{}.APIFunc()
-			//	allFuncs["get"] = e.API.APIMeta()
-			p, err := mlt.RenderPage(u, allFuncs)
-			if err != nil {
-				if p.Status == http.StatusMovedPermanently || p.Status == http.StatusFound {
-					http.Redirect(w, r, p.Title, p.Status)
-					return
-				}
-				log.Debugf("page error: (%+v)", err)
-				if p.Status == http.StatusOK {
-					p.Status = http.StatusInternalServerError
-					p.Raise(p.Status, "Internal", err.Error(), false)
-				}
-			}
-			renderer := mulate.NewRenderer(mlt, p)
-			renderer.WriteContentType(w)
-			err = renderer.Render(w)
-			if err != nil {
-				log.Errorf("Error while handling uri (%s): %s", u, err)
-			}
-		})
-
+		http.HandleFunc("/"+uri, handleHTML(mlt, uri, log))
 	}
 
 	if err := http.ListenAndServe(cfg.Addr, nil); err != nil && err != http.ErrServerClosed {
 		log.Fatalf("listen: %s\n", err)
+	}
+}
+
+// handleHTML returns page handler
+func handleHTML(mlt *mulate.Template, uri string, log loggers.Contextual) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		log.Debugf("Handling page (%s)", uri)
+		reqFuncs := mlt.Funcs // per request copy
+		reqFuncs["data"] = func() interface{} {
+			return data
+		}
+
+		p, err := mlt.RenderPage(uri, reqFuncs, r)
+		if err != nil {
+			if p.Status == http.StatusMovedPermanently || p.Status == http.StatusFound {
+				http.Redirect(w, r, p.Title, p.Status)
+				return
+			}
+			log.Errorf("page error: (%+v)", err)
+			if p.Status == http.StatusOK {
+				p.Status = http.StatusInternalServerError
+				p.Raise(p.Status, "Internal", err.Error(), false)
+			}
+		}
+		renderer := mulate.NewRenderer(mlt, p)
+		renderer.WriteContentType(w)
+		log.Debugf("render layout (%s)", p.Layout)
+		err = renderer.Render(w)
+		if err != nil {
+			log.Errorf("Error while handling uri (%s): %s", uri, err)
+		}
 	}
 }
