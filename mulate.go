@@ -14,7 +14,7 @@ import (
 	"strings"
 )
 
-// config holds config variables and its defaults
+// Config holds config variables and its defaults
 type Config struct {
 	Root        string   `long:"templates" default:"tmpl/" description:"Templates root path"`
 	Ext         string   `long:"mask" default:".tmpl" description:"Templates filename mask"`
@@ -61,7 +61,7 @@ func (t *Template) DisableCache(flag bool) {
 	t.disableCache = flag
 }
 
-//
+// Pages returns a list of page templates founded
 func (t *Template) Pages() []string {
 	keys := make([]string, len(t.pages))
 
@@ -73,6 +73,7 @@ func (t *Template) Pages() []string {
 	return keys
 }
 
+// Layouts returns a list of page layouts founded
 func (t *Template) Layouts() []string {
 	keys := make([]string, len(t.layouts))
 	i := 0
@@ -83,7 +84,7 @@ func (t *Template) Layouts() []string {
 	return keys
 }
 
-// 		e.LTE.LoadTemplates(allFuncs)
+// LoadTemplates parses template files
 func (t *Template) LoadTemplates(funcs template.FuncMap) error {
 	pages := make(map[string]pageDef)
 	layouts := make(map[string]layoutDef)
@@ -161,6 +162,7 @@ func (t *Template) LoadTemplates(funcs template.FuncMap) error {
 	return nil
 }
 
+// RenderPage renders content for given uri
 func (t *Template) RenderPage(uri string, funcs template.FuncMap, r *http.Request) (p *Page, err error) {
 	p = &Page{
 		Status:      http.StatusOK,
@@ -199,6 +201,7 @@ func (t *Template) RenderPage(uri string, funcs template.FuncMap, r *http.Reques
 	return
 }
 
+// RenderLayout renders page in given layout
 func (t *Template) RenderLayout(w http.ResponseWriter, p *Page) (err error) {
 	tmplDef, ok := t.layouts[p.Layout]
 	if !ok {
