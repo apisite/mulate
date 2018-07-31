@@ -53,7 +53,7 @@ import "github.com/apisite/mulate"
 
 func main() {
 
-    mlt, _ := mulate.New(cfg.Template, log)
+    mlt := mulate.New(cfg.Template)
     mlt.DisableCache(true)
 
     allFuncs := make(template.FuncMap, 0)
@@ -67,7 +67,9 @@ func main() {
 }  
 ```
 
-See also: [sample](sample/)
+### See also
+* [sample](sample/)
+* [gin-mulate](https://github.com/apisite/gin-mulate)
 
 ### Template methods
 Get http.Request data
