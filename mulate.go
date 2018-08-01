@@ -21,7 +21,7 @@ type Config struct {
 	Includes    string   `long:"includes" default:"inc/" description:"Includes path"`
 	Layouts     string   `long:"layouts" default:"layout/" description:"Layouts path"`
 	Pages       string   `long:"pages" default:"page/" description:"Pages path"`
-	DefLayout   string   `long:"def_layout" default:"base" description:"Default layout template"`
+	DefLayout   string   `long:"def_layout" default:"default" description:"Default layout template"`
 	ErrLayout   string   `long:"err_layout" default:"error" description:"Error page layout template"`
 	ContentType []string `long:"content-type" default:"text/html; charset=utf-8" description:"Default content type"`
 	BufferSize  int      `long:"buffer" default:"64" description:"Template buffer size"`

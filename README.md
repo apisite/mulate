@@ -1,5 +1,5 @@
 # mulate
-> golang library for multiple layouts & templates
+> golang package for multiple layouts & templates processing by single handler
 
 [![GoCard][gc1]][gc2]
  [![GitHub Release][gr1]][gr2]
@@ -14,7 +14,7 @@
 [gl1]: https://img.shields.io/github/license/apisite/mulate.svg
 [gl2]: LICENSE
 
-* Project status: MVP ready
+* Project status: MVP is ready
 * Future plans: tests & docs
 
 ## Request processing flow
@@ -32,7 +32,7 @@ tmpl
 │   ├── head.tmpl
 │   └── menu.tmpl
 ├── layout
-│   ├── base.tmpl
+│   ├── default.tmpl
 │   ├── error.tmpl
 │   └── wide.tmpl
 └── page
@@ -69,7 +69,7 @@ func main() {
 
 ### See also
 * [sample](sample/)
-* [gin-mulate](https://github.com/apisite/gin-mulate)
+* [gin-mulate](https://github.com/apisite/gin-mulate) - [gin](https://github.com/gin-gonic/gin) bindings for this package
 
 ### Template methods
 Get http.Request data
