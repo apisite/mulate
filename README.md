@@ -17,6 +17,13 @@
 * Project status: MVP is ready
 * Future plans: tests & docs
 
+This package offers 2-step template processing, where page content template called first, so it can
+1. change page layout (among them previous markup)
+2. abort processig and return error page (this will go to step 2)
+3. abort processing and return redirect
+
+If page content template returns HTML, at step 2, layout template will be called for result page markup build.
+
 ## Request processing flow
 
 ![Request processing flow](flow.png)
