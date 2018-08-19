@@ -16,15 +16,15 @@ import (
 
 // Config holds config variables and its defaults
 type Config struct {
-	Root        string   `long:"templates" default:"tmpl/" description:"Templates root path"`
-	Ext         string   `long:"mask" default:".tmpl" description:"Templates filename mask"`
-	Includes    string   `long:"includes" default:"inc/" description:"Includes path"`
-	Layouts     string   `long:"layouts" default:"layout/" description:"Layouts path"`
-	Pages       string   `long:"pages" default:"page/" description:"Pages path"`
-	DefLayout   string   `long:"def_layout" default:"default" description:"Default layout template"`
-	ErrLayout   string   `long:"err_layout" default:"error" description:"Error page layout template"`
-	ContentType []string `long:"content-type" default:"text/html; charset=utf-8" description:"Default content type"`
-	BufferSize  int      `long:"buffer" default:"64" description:"Template buffer size"`
+	Root        string `long:"templates" default:"tmpl/" description:"Templates root path"`
+	Ext         string `long:"mask" default:".tmpl" description:"Templates filename mask"`
+	Includes    string `long:"includes" default:"inc/" description:"Includes path"`
+	Layouts     string `long:"layouts" default:"layout/" description:"Layouts path"`
+	Pages       string `long:"pages" default:"page/" description:"Pages path"`
+	DefLayout   string `long:"def_layout" default:"default" description:"Default layout template"`
+	ErrLayout   string `long:"err_layout" default:"error" description:"Error page layout template"`
+	ContentType string `long:"content-type" default:"text/html; charset=utf-8" description:"Default content type"`
+	BufferSize  int    `long:"buffer" default:"64" description:"Template buffer size"`
 }
 
 // pageDef holds single template data
@@ -42,7 +42,7 @@ type layoutDef struct {
 
 // Template holds all internally used template attributes
 type Template struct {
-	Funcs        template.FuncMap
+	Funcs        template.FuncMap // used externally as default runtime func map
 	config       Config
 	includes     []string
 	pages        map[string]pageDef   // pages[uri]
@@ -138,13 +138,13 @@ func (t *Template) LoadTemplates(funcs template.FuncMap) error {
 	for _, file := range pageFiles {
 		name := filepath.Base(file)
 		td := pageDef{file: file, name: name}
-		if !t.disableCache {
-			files := append([]string{file}, t.includes...)
-			td.tmpl, err = template.New(name).Funcs(funcs).ParseFiles(files...)
-			if err != nil {
-				return errors.Wrap(err, "process page")
-			}
+		//	if !t.disableCache {
+		files := append([]string{file}, t.includes...)
+		td.tmpl, err = template.New(name).Funcs(funcs).ParseFiles(files...)
+		if err != nil {
+			return errors.Wrap(err, "process page")
 		}
+		//	}
 		uri := strings.TrimPrefix(file, (t.config.Root + t.config.Pages))
 		uri = strings.TrimSuffix(uri, t.config.Ext)
 		uri = strings.TrimSuffix(uri, "index")
@@ -184,15 +184,14 @@ func (t *Template) RenderPage(uri string, funcs template.FuncMap, r *http.Reques
 	var tmpl *template.Template
 	if t.disableCache {
 		files := append([]string{tmplDef.file}, t.includes...)
-		tmpl, err = template.New(tmplDef.name).Funcs(p.funcs).ParseFiles(files...)
+		tmpl, err = template.New(tmplDef.name).Funcs(t.Funcs).ParseFiles(files...)
 		if err != nil {
 			return
 		}
 	} else {
 		tmpl = tmplDef.tmpl
-		tmpl.Funcs(p.funcs)
 	}
-	err = tmpl.ExecuteTemplate(buf, tmplDef.name, p)
+	err = tmpl.Funcs(p.funcs).ExecuteTemplate(buf, tmplDef.name, p)
 	if err != nil {
 		return
 	}
@@ -201,7 +200,7 @@ func (t *Template) RenderPage(uri string, funcs template.FuncMap, r *http.Reques
 	return
 }
 
-// RenderLayout renders page in given layout
+// RenderLayout renders page content in given layout
 func (t *Template) RenderLayout(w http.ResponseWriter, p *Page) (err error) {
 	tmplDef, ok := t.layouts[p.Layout]
 	if !ok {
@@ -212,15 +211,14 @@ func (t *Template) RenderLayout(w http.ResponseWriter, p *Page) (err error) {
 	var tmpl *template.Template
 	if t.disableCache {
 		files := append([]string{tmplDef.file}, t.includes...)
-		tmpl, err = template.New(p.Layout).Funcs(p.funcs).ParseFiles(files...)
+		tmpl, err = template.New(p.Layout).Funcs(t.Funcs).ParseFiles(files...)
 		if err != nil {
 			return errors.Wrap(err, "parse layout")
 		}
 	} else {
 		tmpl = tmplDef.tmpl
-		tmpl.Funcs(p.funcs)
 	}
-	err = tmpl.ExecuteTemplate(buf, p.Layout+t.config.Ext, struct {
+	err = tmpl.Funcs(p.funcs).ExecuteTemplate(buf, p.Layout+t.config.Ext, struct {
 		Content template.HTML
 		*Page
 	}{p.content, p})

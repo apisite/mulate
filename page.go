@@ -15,7 +15,7 @@ var ErrRedirect = errors.New("Abort with redirect")
 type Page struct {
 	Title       string
 	Status      int
-	ContentType []string
+	ContentType string
 	Layout      string
 	JS          []string
 	CSS         []string
@@ -34,6 +34,12 @@ func (p *Page) SetLayout(name string) (string, error) {
 // SetTitle - set page title
 func (p *Page) SetTitle(name string) (string, error) {
 	p.Title = name
+	return "", nil
+}
+
+// SetTitle - set page title
+func (p *Page) SetContentType(name string) (string, error) {
+	p.ContentType = name
 	return "", nil
 }
 

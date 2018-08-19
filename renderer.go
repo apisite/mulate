@@ -26,7 +26,7 @@ func (r Renderer) Render(w http.ResponseWriter) error {
 func (r Renderer) WriteContentType(w http.ResponseWriter) {
 	header := w.Header()
 	// TODO: r.Page.ContentType
-	if val := header["Content-Type"]; len(val) == 0 {
-		header["Content-Type"] = r.mlt.config.ContentType
-	}
+	//	if val := header["Content-Type"]; len(val) == 0 {
+	header["Content-Type"] = []string{r.page.ContentType}
+	//	}
 }

@@ -104,7 +104,7 @@ func handleHTML(mlt *mulate.Template, uri string, log loggers.Contextual) func(w
 		}
 		renderer := mulate.NewRenderer(mlt, p)
 		renderer.WriteContentType(w)
-		log.Debugf("render layout (%s)", p.Layout)
+		log.Debugf("render layout (%s) for (%v)", p.Layout, p.ContentType)
 		err = renderer.Render(w)
 		if err != nil {
 			log.Errorf("Error while handling uri (%s): %s", uri, err)
