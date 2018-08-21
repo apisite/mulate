@@ -186,6 +186,7 @@ func (t *Template) RenderPage(uri string, funcs template.FuncMap, r *http.Reques
 		files := append([]string{tmplDef.file}, t.includes...)
 		tmpl, err = template.New(tmplDef.name).Funcs(t.Funcs).ParseFiles(files...)
 		if err != nil {
+			err = errors.Wrap(err, "parse page")
 			return
 		}
 	} else {
@@ -193,6 +194,7 @@ func (t *Template) RenderPage(uri string, funcs template.FuncMap, r *http.Reques
 	}
 	err = tmpl.Funcs(p.funcs).ExecuteTemplate(buf, tmplDef.name, p)
 	if err != nil {
+		err = errors.Wrap(err, "exec page")
 		return
 	}
 	p.content = template.HTML(buf.Bytes())
