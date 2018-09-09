@@ -37,7 +37,19 @@ func (p *Page) SetTitle(name string) (string, error) {
 	return "", nil
 }
 
-// SetTitle - set page title
+// AddJS - add .js file to scripts list
+func (p *Page) AddJS(file string) (string, error) {
+	p.JS = append(p.JS, file)
+	return "", nil
+}
+
+// AddCSS - add .css file to styles list
+func (p *Page) AddCSS(file string) (string, error) {
+	p.JS = append(p.CSS, file)
+	return "", nil
+}
+
+// SetContentType - set page content type
 func (p *Page) SetContentType(name string) (string, error) {
 	p.ContentType = name
 	return "", nil
