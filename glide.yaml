@@ -1,0 +1,11 @@
+package: github.com/apisite/mulate
+import:
+- package: github.com/birkirb/loggers-mapper-logrus
+- package: github.com/jessevdk/go-flags
+- package: github.com/onrik/logrus
+  subpackages:
+  - filename
+- package: github.com/oxtoacart/bpool
+- package: github.com/pkg/errors
+- package: github.com/sirupsen/logrus
+- package: gopkg.in/birkirb/loggers.v1
