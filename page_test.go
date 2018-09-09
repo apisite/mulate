@@ -6,19 +6,20 @@ import (
 	"testing"
 )
 
+type fields struct {
+	Title       string
+	Status      int
+	ContentType string
+	Layout      string
+	JS          []string
+	CSS         []string
+	Request     *http.Request
+	content     template.HTML
+	funcs       template.FuncMap
+	errLayout   string
+}
+
 func TestPage_SetLayout(t *testing.T) {
-	type fields struct {
-		Title       string
-		Status      int
-		ContentType []string
-		Layout      string
-		JS          []string
-		CSS         []string
-		Request     *http.Request
-		content     template.HTML
-		funcs       template.FuncMap
-		errLayout   string
-	}
 	type args struct {
 		name string
 	}
@@ -29,7 +30,7 @@ func TestPage_SetLayout(t *testing.T) {
 		want    string
 		wantErr bool
 	}{
-	// TODO: Add test cases.
+		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
 		p := &Page{
@@ -56,18 +57,6 @@ func TestPage_SetLayout(t *testing.T) {
 }
 
 func TestPage_SetTitle(t *testing.T) {
-	type fields struct {
-		Title       string
-		Status      int
-		ContentType []string
-		Layout      string
-		JS          []string
-		CSS         []string
-		Request     *http.Request
-		content     template.HTML
-		funcs       template.FuncMap
-		errLayout   string
-	}
 	type args struct {
 		name string
 	}
@@ -78,7 +67,7 @@ func TestPage_SetTitle(t *testing.T) {
 		want    string
 		wantErr bool
 	}{
-	// TODO: Add test cases.
+		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
 		p := &Page{
@@ -105,18 +94,6 @@ func TestPage_SetTitle(t *testing.T) {
 }
 
 func TestPage_Raise(t *testing.T) {
-	type fields struct {
-		Title       string
-		Status      int
-		ContentType []string
-		Layout      string
-		JS          []string
-		CSS         []string
-		Request     *http.Request
-		content     template.HTML
-		funcs       template.FuncMap
-		errLayout   string
-	}
 	type args struct {
 		status  int
 		title   string
@@ -130,7 +107,7 @@ func TestPage_Raise(t *testing.T) {
 		want    string
 		wantErr bool
 	}{
-	// TODO: Add test cases.
+		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
 		p := &Page{
@@ -157,18 +134,6 @@ func TestPage_Raise(t *testing.T) {
 }
 
 func TestPage_RedirectFound(t *testing.T) {
-	type fields struct {
-		Title       string
-		Status      int
-		ContentType []string
-		Layout      string
-		JS          []string
-		CSS         []string
-		Request     *http.Request
-		content     template.HTML
-		funcs       template.FuncMap
-		errLayout   string
-	}
 	type args struct {
 		uri string
 	}
@@ -179,7 +144,7 @@ func TestPage_RedirectFound(t *testing.T) {
 		want    string
 		wantErr bool
 	}{
-	// TODO: Add test cases.
+		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
 		p := &Page{
