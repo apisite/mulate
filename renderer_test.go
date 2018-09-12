@@ -16,7 +16,7 @@ func TestNewRenderer(t *testing.T) {
 		args args
 		want *Renderer
 	}{
-	// TODO: Add test cases.
+		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
 		if got := NewRenderer(tt.args.mlt, tt.args.page); !reflect.DeepEqual(got, tt.want) {
@@ -39,7 +39,7 @@ func TestRenderer_Render(t *testing.T) {
 		args    args
 		wantErr bool
 	}{
-	// TODO: Add test cases.
+		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
 		r := Renderer{
@@ -65,7 +65,7 @@ func TestRenderer_WriteContentType(t *testing.T) {
 		fields fields
 		args   args
 	}{
-	// TODO: Add test cases.
+		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
 		r := Renderer{
