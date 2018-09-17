@@ -23,6 +23,12 @@ type Page struct {
 	content     template.HTML
 	funcs       template.FuncMap
 	errLayout   string
+	uri         string
+}
+
+// URI returns GIN page uri
+func (p *Page) URI() (string, error) {
+	return p.uri, nil
 }
 
 // SetLayout - set page layout

@@ -171,6 +171,7 @@ func (t *Template) RenderPage(uri string, funcs template.FuncMap, r *http.Reques
 		funcs:       funcs,
 		Request:     r,
 		errLayout:   t.config.ErrLayout,
+		uri:         uri,
 	}
 
 	tmplDef, ok := t.pages[uri]
